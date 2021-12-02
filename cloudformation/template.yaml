@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS CloudFormation Template
+Resources:
+  b1:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+  p1:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Id: p1
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref b1
+                - /*
+      Bucket: !Ref b1
+  b2:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+  p2:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Id: p2
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref b2
+                - /*
+      Bucket: !Ref b2
+  rL:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root2
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+  l1:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: index.handler
+      Role: !GetAtt 
+        - rL
+        - Arn
+      Code:
+        ZipFile: |
+          def my_handler(event, context):
+            message = "Hello Lambda World!"
+            return message
+      Runtime: python3.8
+      Timeout: 25
+      TracingConfig:
+        Mode: Active
+  notebook:
+    Type: 'AWS::SageMaker::NotebookInstance'
+    Properties:
+      InstanceType: ml.t3.medium
+      RoleArn: !GetAtt 
+        - er
+        - Arn
+  er:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - sagemaker.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+Outputs:
+  S3Bucket1SecureURL:
+    Value: !Join 
+      - ''
+      - - 'https://'
+        - !GetAtt 
+          - b1
+          - DomainName
+    Description: Name of S3 bucket to hold email content
+  S3Bucket2SecureURL:
+    Value: !Join 
+      - ''
+      - - 'https://'
+        - !GetAtt 
+          - b2
+          - DomainName
+    Description: Name of S3 bucket to hold email content
+  NotebookInstanceId:
+    Value: !Ref notebook
+    Value: !Ref notebook
