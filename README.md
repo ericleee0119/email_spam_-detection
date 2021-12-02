@@ -11,4 +11,9 @@
 6. The domain sends back a email to the sender to tell them whether the email is spam or not
 7. We create a CloudFormation for this flow
  
+## Not Spam Demo
 ![image](https://github.com/ericleee0119/email_spam_detection/blob/main/img/2.PNG)  
+  
+  
+## Spam Demo
+![image](https://github.com/ericleee0119/email_spam_detection/blob/main/img/3.PNG)  
