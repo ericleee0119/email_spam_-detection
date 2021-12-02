@@ -8,6 +8,6 @@
 3. When we send the email to the domain, the email will push in the S3
 4. S3 will trigger Lambda
 5. Lambda will detect whether the email is spam or not
-6. The domain send back a email to the sender to tell them whether the email is spam or not
+6. The domain sends back a email to the sender to tell them whether the email is spam or not
 7. We create a CloudFormation for this flow
  
